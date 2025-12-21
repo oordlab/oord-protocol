@@ -1,0 +1,16 @@
+{
+  "bundle_protocol_version": "1",
+  "bundle_sha256": "2b964e93c355f7eb177038c75ef7a09cd4becae84fcefbc1a3e92081cc5d13e5",
+  "expect": {
+    "checks_asserted": [
+      "hashes_ok"
+    ],
+    "checks_expected": {
+      "hashes_ok": false
+    },
+    "exit_code": 1,
+    "reason_ids": [
+      "HASH_MISMATCH"
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "bundle_protocol_version": "1",
+  "bundle_sha256": "e8b74631339582223c173dea9d405a1b9603cd4854b1dd007b2efe998807e2c5",
+  "expect": {
+    "checks_asserted": [
+      "hashes_ok",
+      "merkle_ok",
+      "manifest_sig_ok",
+      "tl_present"
+    ],
+    "checks_expected": {
+      "hashes_ok": true,
+      "manifest_sig_ok": true,
+      "merkle_ok": true,
+      "tl_present": false
+    },
+    "exit_code": 1,
+    "reason_ids": [
+      "TL_PROOF_MISSING"
+    ]
+  }
+}

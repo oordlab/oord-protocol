@@ -1,0 +1,22 @@
+{
+  "bundle_protocol_version": "1",
+  "bundle_sha256": "d76443930c459b1ddf99d081565807c3c712a3db953890089e721d8352cae4e9",
+  "expect": {
+    "checks_asserted": [
+      "hashes_ok",
+      "merkle_ok",
+      "manifest_sig_ok",
+      "tl_present",
+      "tl_ok"
+    ],
+    "checks_expected": {
+      "hashes_ok": true,
+      "manifest_sig_ok": true,
+      "merkle_ok": true,
+      "tl_ok": true,
+      "tl_present": true
+    },
+    "exit_code": 0,
+    "reason_ids": []
+  }
+}
