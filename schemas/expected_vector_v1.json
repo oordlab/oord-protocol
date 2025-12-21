@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oordlab.org/schemas/expected_vector_v1.json",
+  "title": "Oord Expected Vector v1",
+  "type": "object",
+  "required": ["bundle_protocol_version", "bundle_sha256", "expect"],
+  "properties": {
+    "bundle_protocol_version": {
+      "type": "string",
+      "const": "1",
+      "description": "Protocol major version asserted by this vector (pinned)."
+    },
+    "bundle_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 of the canonical bundle ZIP bytes (lowercase hex)."
+    },
+    "expect": {
+      "type": "object",
+      "required": ["exit_code", "reason_ids", "checks_asserted", "checks_expected"],
+      "properties": {
+        "exit_code": {
+          "type": "integer",
+          "enum": [0, 1, 2],
+          "description": "0=pass, 1=content/crypto failure, 2=environment/infra failure"
+        },
+        "reason_ids": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "description": "Stable identifiers only. No prose. Order is not significant."
+        },
+        "checks_asserted": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "description": "Which boolean checks are asserted for this vector."
+        },
+        "checks_expected": {
+          "type": "object",
+          "additionalProperties": { "type": "boolean" },
+          "description": "Map of check name -> expected boolean value."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
+
