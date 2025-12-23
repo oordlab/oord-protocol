@@ -1,0 +1,76 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  protocol:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install jsonschema
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install jsonschema
+
+      - name: JSON parse sanity check
+        run: |
+          python - <<'PY'
+          import json, glob, sys
+
+          paths = []
+          paths += glob.glob("schemas/*.json")
+          paths += glob.glob("test-vectors/v1/expected/*.json")
+
+          if not paths:
+              print("No JSON files found where expected; repo structure looks wrong.")
+              sys.exit(1)
+
+          for p in paths:
+              json.load(open(p, "rb"))
+
+          print("JSON parse OK")
+          PY
+
+      - name: "Guard: expected vectors must exist"
+        run: |
+          python - <<'PY'
+          import glob, sys
+          expected = glob.glob("test-vectors/v1/expected/*.json")
+          if not expected:
+              print("No expected vectors found under test-vectors/v1/expected/. This repo must not ship without vectors.")
+              sys.exit(1)
+          print(f"Found {len(expected)} expected vectors")
+          PY
+
+
+      - name: Validate expected vectors against schema
+        run: |
+          python - <<'PY'
+          import json, glob, sys
+          from jsonschema import validate
+
+          schema = json.load(open("schemas/expected_vector_v1.json", "rb"))
+          expected_paths = glob.glob("test-vectors/v1/expected/*.json")
+          if not expected_paths:
+              print("No expected vectors found (guard should have caught this).")
+              sys.exit(1)
+
+          for p in expected_paths:
+              doc = json.load(open(p, "rb"))
+              validate(instance=doc, schema=schema)
+
+          print("Expected vectors schema OK")
+          PY
+
+      - name: Verify SHA256SUMS
+        run: |
+          cd test-vectors/v1
+          test -f SHA256SUMS
+          sha256sum -c SHA256SUMS
