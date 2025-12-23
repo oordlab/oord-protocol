@@ -1,50 +1,121 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://oordlab.org/schemas/expected_vector_v1.json",
-  "title": "Oord Expected Vector v1",
+  "title": "Oord Expected Vector v1 (subset-of-verifier-output)",
+  "description": "Expected JSON is a *stable subset* of the verifier's --json output. It is intentionally not a full snapshot to avoid locking transient fields.",
   "type": "object",
-  "required": ["bundle_protocol_version", "bundle_sha256", "expect"],
+  "required": ["reason_ids", "hashes_ok"],
   "properties": {
-    "bundle_protocol_version": {
-      "type": "string",
-      "const": "1",
-      "description": "Protocol major version asserted by this vector (pinned)."
+    "reason_ids": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true,
+      "description": "Stable identifiers only. No prose. Order is not significant."
     },
-    "bundle_sha256": {
-      "type": "string",
-      "pattern": "^[0-9a-f]{64}$",
-      "description": "SHA-256 of the canonical bundle ZIP bytes (lowercase hex)."
+    "hashes_ok": { "type": "boolean" },
+
+    "error": {
+      "description": "Optional human-readable error message (not required to be stable).",
+      "type": ["string", "null"]
     },
-    "expect": {
+    "error_kind": {
+      "description": "Verifier error classification. null for content/crypto failures; 'env' for infra/usage failures.",
+      "type": ["string", "null"],
+      "enum": ["env", null]
+    },
+
+    "hash_mismatches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["file", "reason"],
+        "properties": {
+          "file": { "type": "string", "minLength": 1 },
+          "reason": { "type": "string", "minLength": 1 },
+          "actual": { "type": "string" },
+          "expected": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+
+    "batch": {
       "type": "object",
-      "required": ["exit_code", "reason_ids", "checks_asserted", "checks_expected"],
       "properties": {
-        "exit_code": {
-          "type": "integer",
-          "enum": [0, 1, 2],
-          "description": "0=pass, 1=content/crypto failure, 2=environment/infra failure"
-        },
-        "reason_ids": {
-          "type": "array",
-          "items": { "type": "string", "minLength": 1 },
-          "uniqueItems": true,
-          "description": "Stable identifiers only. No prose. Order is not significant."
-        },
-        "checks_asserted": {
-          "type": "array",
-          "items": { "type": "string", "minLength": 1 },
-          "uniqueItems": true,
-          "description": "Which boolean checks are asserted for this vector."
-        },
-        "checks_expected": {
-          "type": "object",
-          "additionalProperties": { "type": "boolean" },
-          "description": "Map of check name -> expected boolean value."
-        }
+        "org_id": { "type": ["string", "null"] },
+        "batch_id": { "type": ["string", "null"] },
+        "created_at_ms": { "type": ["integer", "null"] },
+        "key_id": { "type": ["string", "null"] },
+        "file_count": { "type": ["integer", "null"] },
+        "total_bytes": { "type": ["integer", "null"] },
+        "merkle_root": { "type": ["string", "null"] }
       },
-      "additionalProperties": false
+      "additionalProperties": true
+    },
+
+    "merkle": {
+      "type": "object",
+      "properties": {
+        "ok": { "type": ["boolean", "null"] },
+        "manifest_root": { "type": ["string", "null"] },
+        "recomputed_root": { "type": ["string", "null"] },
+        "error": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+
+    "jwks": {
+      "type": "object",
+      "properties": {
+        "present": { "type": ["boolean", "null"] },
+        "ok": { "type": ["boolean", "null"] },
+        "kids": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "fingerprint": { "type": ["string", "null"] },
+        "error": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+
+    "manifest_sig": {
+      "type": "object",
+      "properties": {
+        "ok": { "type": ["boolean", "null"] },
+        "key_id": { "type": ["string", "null"] },
+        "sig_verified": { "type": ["boolean", "null"] },
+        "error": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+
+    "tl": {
+      "type": "object",
+      "properties": {
+        "present": { "type": ["boolean", "null"] },
+        "required": { "type": ["boolean", "null"] },
+        "ok": { "type": ["boolean", "null"] },
+        "seq": { "type": ["integer", "null"] },
+        "merkle_root": { "type": ["string", "null"] },
+        "signer_kid": { "type": ["string", "null"] },
+        "sth_sig": { "type": ["string", "null"] },
+        "sig_verified": { "type": ["boolean", "null"] },
+        "error": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+
+    "tl_online": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": ["boolean", "null"] },
+        "ok": { "type": ["boolean", "null"] },
+        "error": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
     }
   },
-  "additionalProperties": false
+  "additionalProperties": true
 }
 
