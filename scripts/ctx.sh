@@ -6,7 +6,7 @@ IGNORE='node_modules|.git|dist|build|.venv|target|__pycache__|.expo|.next'
 echo "# Repo Context Index" > "$OUT"
 echo "" >> "$OUT"
 
-echo "## Directory Tree (trimmed)" >> "$OUT"
+echo "## oord-protocol Directory Tree (trimmed)" >> "$OUT"
 command -v tree >/dev/null 2>&1 && tree -I "$IGNORE" -L 2 >> "$OUT" || true
 
 echo "" >> "$OUT"

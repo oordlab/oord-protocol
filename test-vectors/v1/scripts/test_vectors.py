@@ -5,13 +5,29 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = ROOT.parents[1]
 BUNDLES = ROOT / "bundles"
 EXPECTED = ROOT / "expected"
-SCHEMA = ROOT / "schemas" / "expected_vector_v1.json"
+
+def _schema_path() -> Path:
+    candidates = [
+        ROOT / "schemas" / "expected_vector_v1.json",
+        REPO_ROOT / "schemas" / "expected_vector_v1.json",
+    ]
+    for p in candidates:
+        if p.is_file():
+            return p
+    raise RuntimeError(f"schema missing: {candidates[0]} (also checked {candidates[1]})")
+
+SCHEMA = _schema_path()
 RUNNER = ROOT / "scripts" / "run_vectors.py"
 
 def _print(s: str) -> None:
     print(s, file=sys.stderr)
+
+def _default_verify_cmd() -> str:
+    return f"{sys.executable} -m oord_verify.cli verify"
+
 
 def _schema_validate_expected() -> None:
     try:
@@ -39,15 +55,7 @@ def _schema_validate_expected() -> None:
 def _run_vectors() -> subprocess.CompletedProcess[str]:
     verify_cmd = os.environ.get("OORD_VERIFY_CMD")
     if not verify_cmd:
-        raise RuntimeError(
-            "OORD_VERIFY_CMD not set.\n"
-            "Example:\n"
-            '  export OORD_VERIFY_CMD="PYTHONPATH=$HOME/code/oord-agent python -m cli.oord_cli verify"\n'
-            "Then run:\n"
-            "  pytest -q\n"
-            "or:\n"
-            "  python scripts/test_vectors.py\n"
-        )
+        verify_cmd = _default_verify_cmd()
 
     if not RUNNER.is_file():
         raise RuntimeError(f"runner missing: {RUNNER}")
@@ -57,16 +65,18 @@ def _run_vectors() -> subprocess.CompletedProcess[str]:
         raise RuntimeError(f"expected dir missing: {EXPECTED}")
 
     _print(f"ROOT={ROOT}")
-    _print(f"OORD_VERIFY_CMD={verify_cmd}")
+    _print(f"OORD_VERIFY_CMD={verify_cmd} (default)" if "OORD_VERIFY_CMD" not in os.environ else f"OORD_VERIFY_CMD={verify_cmd}")
     _print(f"RUNNER={RUNNER}")
     _print(f"BUNDLES={BUNDLES}")
     _print(f"EXPECTED={EXPECTED}")
 
+    env = os.environ.copy()
+    env["OORD_VERIFY_CMD"] = verify_cmd
     return subprocess.run(
         ["python", str(RUNNER), str(BUNDLES), str(EXPECTED)],
         capture_output=True,
         text=True,
-        env=os.environ.copy(),
+        env=env,
     )
 
 def test_vectors():
